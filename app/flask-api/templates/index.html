@@ -36,7 +36,7 @@
                             <th>ID</th>
                             <th>Name</th>
                             <th>Description</th>
-                        </tr>
+                            <th>Actions</th> </tr>
                     </thead>
                     <tbody>
                         {% for item in items %}
@@ -44,10 +44,15 @@
                             <td>{{ item.id }}</td>
                             <td><strong>{{ item.name }}</strong></td>
                             <td>{{ item.description }}</td>
+                            <td>
+                                <form action="/delete/{{ item.id }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="3" class="text-center text-muted">No data found in the database. Add an item above!</td>
+                            <td colspan="4" class="text-center text-muted">No data found in the database. Add an item above!</td>
                         </tr>
                         {% endfor %}
                     </tbody>

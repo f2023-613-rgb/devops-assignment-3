@@ -39,6 +39,19 @@ def add_item():
     conn.close()
     return redirect(url_for('index'))
 
+# --- BRAND NEW DELETE ROUTE ---
+@app.route('/delete/<int:id>', methods=['POST'])
+def delete_item(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Delete the specific item matching the ID
+    cursor.execute('DELETE FROM items WHERE id = %s', (id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('index'))
+# ------------------------------
+
 @app.route('/api/items', methods=['GET', 'POST'])
 def api_items():
     if request.method == 'POST':
