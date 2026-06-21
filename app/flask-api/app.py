@@ -18,13 +18,27 @@ def health_check():
 
 @app.route('/', methods=['GET'])
 def index():
+    # Get sorting parameters from the URL (default to ID and Ascending)
+    sort_by = request.args.get('sort', 'id')
+    order = request.args.get('order', 'asc')
+
+    # Security check: Only allow specific columns to prevent SQL Injection!
+    if sort_by not in ['id', 'name']:
+        sort_by = 'id'
+    if order not in ['asc', 'desc']:
+        order = 'asc'
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM items;')
+
+    # Ask MySQL to sort the data for us using ORDER BY
+    cursor.execute(f'SELECT * FROM items ORDER BY {sort_by} {order.upper()};')
     items = cursor.fetchall()
     cursor.close()
     conn.close()
-    return render_template('index.html', items=items)
+
+    # Pass the sort state to the HTML so it knows which way to point the arrows
+    return render_template('index.html', items=items, current_sort=sort_by, current_order=order)
 
 @app.route('/add', methods=['POST'])
 def add_item():
@@ -39,18 +53,15 @@ def add_item():
     conn.close()
     return redirect(url_for('index'))
 
-# --- BRAND NEW DELETE ROUTE ---
 @app.route('/delete/<int:id>', methods=['POST'])
 def delete_item(id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    # Delete the specific item matching the ID
     cursor.execute('DELETE FROM items WHERE id = %s', (id,))
     conn.commit()
     cursor.close()
     conn.close()
     return redirect(url_for('index'))
-# ------------------------------
 
 @app.route('/api/items', methods=['GET', 'POST'])
 def api_items():
